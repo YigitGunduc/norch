@@ -1,0 +1,82 @@
+const squareSize = 16;
+const noRows = 16;
+const noCols = 16;
+
+var canvas = document.getElementById('canvas');
+if (!canvas.getContext) console.log("error");
+var context = canvas.getContext('2d');
+
+function createMatrix(rows, cols) {
+  let mat = [];
+
+  for (let i = 0; i < rows; i++) {
+     mat[i] = new Array(cols).fill(0);
+  }
+  return mat;
+}
+
+displayGridPaper();
+
+const state = createMatrix(noRows, noCols)
+console.log(state)
+
+while(true) {
+  loop();
+}
+
+
+function loop()
+{
+
+  document.addEventListener("mousedown", () => {
+    let mousex = window.event.clientX; 
+    let mousey = window.event.clientY; 
+    console.log(mousex, mousey)
+
+    x = mousex
+    y = mousey
+
+    displayCell(x, y)
+
+  });
+}
+
+// Display the cell that contains the point (x, y)
+function displayCell(x, y)
+{
+    var col = Math.floor( x / squareSize );
+    var row = Math.floor( y / squareSize );
+
+    console.log('>loop>eventlisttenr>')
+    console.log(col, row)
+
+    if (col >= noCols || row >= noRows)
+        return;
+
+    // determine the cell left upper-corner x and y coordinates
+    var cellX = col * squareSize;
+    var cellY = row * squareSize;
+
+    state[cellX][cellY] = 1;
+    console.log(state);
+
+    //fill(color);
+    context.fillRect(cellX, cellY, squareSize, squareSize);
+}
+
+// Display the grid paper using a series of white rectangles
+
+function displayGridPaper()
+{
+
+  for(var row = 0; row < noRows; row++)
+  {
+      for(var col = 0; col < noCols; col++)
+      {
+          var x = col * squareSize;
+          var y = row * squareSize;
+
+          context.strokeRect(x, y, squareSize, squareSize);
+      }
+  }
+}
