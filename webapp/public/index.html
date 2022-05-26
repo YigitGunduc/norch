@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <style>
+    </style>
+    <title>Document</title>
+  </head>
+  <style>
+    .submit {
+      background-color: #4CAF50; /* Green */
+      margin: 10px;
+      border: none;
+      color: white;
+      padding: 15px 32px;
+      text-align: center;
+      text-decoration: none;
+      display: inline-block;
+      font-size: 16px;
+    }
+    .ref {
+      margin: 10px;
+      background-color: #33D1FF;
+      border: none;
+      color: white;
+      padding: 15px 32px;
+      text-align: center;
+      text-decoration: none;
+      display: inline-block;
+      font-size: 16px;
+    }
+
+    .container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+  </style>
+  <body>
+    <div>
+      <div class="container">
+        <canvas id="canvas" width="448" height="448"></canvas>
+      </div>
+      <div class="container">
+        <button class="submit" onclick="predict()">predict</button>
+        <button class="ref" onclick="refresh()">clear</button>
+      </div>
+    <h1 id="res"></h1>
+
+    </div>
+    <script type="text/javascript" src="./src/index.js"></script>
+  </body>
+</html>
