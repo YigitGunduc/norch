@@ -32,7 +32,7 @@ import matplotlib.pyplot as plt
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 print(device)
 
-input_size = 256 # 28x28
+input_size = 784 # 28x28
 hidden_size = 32 
 num_classes = 10
 num_epochs = 10
@@ -41,7 +41,6 @@ learning_rate = 0.001
 
 t = transforms.Compose([
     transforms.ToTensor(),  
-    transforms.Resize(16)
     ])
 
 train_dataset = torchvision.datasets.MNIST(root='./data', 
@@ -89,7 +88,7 @@ for epoch in range(num_epochs):
     for i, (images, labels) in enumerate(train_loader):  
         # origin shape: [100, 1, 28, 28]
         # resized: [100, 784]
-        images = images.reshape(-1, 16*16).to(device)
+        images = images.reshape(-1, 28 * 28).to(device)
         labels = labels.to(device)
 
         # Forward pass

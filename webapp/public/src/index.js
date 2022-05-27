@@ -1,42 +1,6 @@
 'use strict';
 
 // ################################################################################ 
-// Activations
-// ################################################################################ 
-
-const Identity = function(x) {
-    return x;
-};
-
-function Inverse (x) {
-  if (Array.isArray(x)) {
-    return x.map(x => (1 - x));
-  }
-  return (1 - x);
-};
-
- function Tanh(x) {
-  if (Array.isArray(x)) {
-    return x.map(x => Math.tanh(x));
-  }
-  return (Math.tanh(x));
-};
-
-function ReLU(x) {
-  if (Array.isArray(x)) {
-    return x.map(x => Math.max(0, x));
-  }
-  return Math.max(0, x);
-};
-
- function Sinusoid(x) {
-  if (Array.isArray(x)) {
-    x.map(x => Math.sin(x));
-  }
-  return Math.sin(x);
-};
-
-// ################################################################################ 
 // tensor_ops
 // ################################################################################ 
 
@@ -68,7 +32,7 @@ function add(m, v) {
 }
 
 // ################################################################################ 
-// norch
+// norch forward function
 // ################################################################################ 
 
 function forward(x, model_params) {
@@ -87,38 +51,9 @@ function forward(x, model_params) {
   return x;
 }
 
-/*
-function forward(x, model_params) {
-  const w = (model_params['weights']);
-  const b = (model_params['biases']);
-
-  for (let i = 0; i < w.length; i++) {
-    x = matmul(x, transpose(w[i]));
-    x = add(x, b[i])
-    if (i < weights.length - 1) {
-      x = ReLU(x);
-    }
-    console.log('pass')
-  }
-  return x;
-}
-*/
-
 // ################################################################################ 
-// webapp
+// utils
 // ################################################################################ 
-
-const URL = 'http://localhost:3000/weights.json';
-let weights = '';
-fetch(URL, {
-  mode: 'cors',
-  headers: {
-    'Access-Control-Allow-Origin':'*'
-  }
-}).then(response => response.text())
-  .then((data) => {
-    weights = data;
-}) 
 
 function argmax(arr) {
   let max = 0;
@@ -132,47 +67,9 @@ function argmax(arr) {
   return argm
 }
 
-const squareSize = 16;
-const noRows = 28;
-const noCols = 28;
-const context = getCtx();
-
-let drag = false;
-let state = createMatrix(noRows, noCols)
-
-function predict() {
-  console.log(state)
-  state = [].concat.apply([], state);
-  weights = JSON.parse(weights);
-  console.log(weights)
-  const out = forward([state.flat()], weights)
-  console.log(out)
-  const max = argmax(out[0])
-  console.log(max)
-
-  document.getElementById('res').innerHTML = `${max}`;
-}
-
 function refresh() {
   window.location.reload();
 }
-
-displayGridPaper();
-
-document.addEventListener('mousedown', () => drag = true);
-document.addEventListener('mouseup', () => drag = false);
-document.addEventListener('mousemove', () => {
-  if(drag) {
-  let x = window.event.clientX; 
-  let y = window.event.clientY; 
-
-  var rect = canvas.getBoundingClientRect();
-  x = x - rect.left;
-  y = y - rect.top;
-
-  displayCell(x, y)
-  }
-});
 
 function getCtx() {
   var canvas = document.getElementById('canvas');
@@ -188,7 +85,52 @@ function createMatrix(rows, cols) {
   for (let i = 0; i < rows; i++) {
      mat[i] = new Array(cols).fill(0);
   }
+
   return mat;
+}
+
+// ################################################################################ 
+// webapp
+// ################################################################################ 
+
+let loaded = false;
+let weights = '';
+let drag = false;
+const noRows = 28;
+const noCols = 28;
+const squareSize = 16;
+const context = getCtx();
+let state = createMatrix(noRows, noCols)
+const PARAMS_URL = 'https://raw.githubusercontent.com/YigitGunduc/norch/master/webapp/server/weights.json'
+
+
+$.getJSON(PARAMS_URL, function( data ) {
+  weights = data
+  loaded = true;
+});
+
+function predict() {
+  if (!loaded) return;
+
+  state = [].concat.apply([], state); // flatten
+  state = [state] // expand -> (bs, in_size)
+  const out = forward(state, weights)
+  const arg_max_out = argmax(out[0])
+
+  document.getElementById('res').innerHTML = `${arg_max_out}`;
+}
+
+displayGridPaper();
+
+function displayGridPaper() {
+  for(var row = 0; row < noRows; row++) {
+    for(var col = 0; col < noCols; col++) {
+      var x = col * squareSize;
+      var y = row * squareSize;
+
+      context.strokeRect(x, y, squareSize, squareSize);
+    }
+  }
 }
 
 function displayCell(x, y) {
@@ -198,11 +140,11 @@ function displayCell(x, y) {
 
     if (col >= noCols || row >= noRows) return;
 
-    state[row][col] = 1;
-    //state[row + 1][col] = 1;
-    //state[row][col + 1] = 1;
-    //state[row - 1][col] = 1;
-    //state[row][col - 1] = 1;
+    state[row][col]     = 1;
+    state[row + 1][col] = 1;
+    state[row][col + 1] = 1;
+    state[row - 1][col] = 1;
+    state[row][col - 1] = 1;
 
 
     var cellX = col * squareSize;
@@ -224,16 +166,23 @@ function displayCell(x, y) {
     var cellX = (col) * squareSize;
     var cellY = (row - 1) * squareSize;
     context.fillRect(cellX, cellY, squareSize, squareSize);
-
 }
 
-function displayGridPaper() {
-  for(var row = 0; row < noRows; row++) {
-    for(var col = 0; col < noCols; col++) {
-      var x = col * squareSize;
-      var y = row * squareSize;
+document.addEventListener('mousedown', () => drag = true);
+document.addEventListener('mouseup', () => drag = false);
+document.addEventListener('mousemove', () => {
 
-      context.strokeRect(x, y, squareSize, squareSize);
-    }
+  if(drag) {
+
+    let x = window.event.clientX; 
+    let y = window.event.clientY; 
+
+    var rect = canvas.getBoundingClientRect();
+    x = x - rect.left;
+    y = y - rect.top;
+
+    displayCell(x, y)
+
   }
-}
+
+});
