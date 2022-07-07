@@ -101,7 +101,7 @@ const noCols = 28;
 const squareSize = 16;
 const context = getCtx();
 let state = createMatrix(noRows, noCols)
-const PARAMS_URL = 'https://raw.githubusercontent.com/YigitGunduc/norch/master/webapp/server/weights.json'
+const PARAMS_URL = 'https://raw.githubusercontent.com/yigitgunduc/norch/master/webapp/model/weights.json'
 
 
 $.getJSON(PARAMS_URL, function( data ) {

@@ -5,7 +5,7 @@ import torchvision.transforms as transforms
 import matplotlib.pyplot as plt
 
 
-input_size = 256 # 28x28
+input_size = 784 # 28x28
 hidden_size = 32 
 num_classes = 10
 num_epochs = 10
@@ -33,8 +33,7 @@ model = model.cpu()
 
 import numpy as np
 
-inp = np.zeros((1, 16, 16))
-inp = inp.reshape((1, 16 * 16))
+inp = np.zeros((1, 28, 28))
+inp = inp.reshape((1, 28 * 28))
 out = model.forward(torch.tensor(inp).type(torch.float))
 print(out[0])
-
