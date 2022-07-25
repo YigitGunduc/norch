@@ -31,6 +31,16 @@ function add(m, v) {
   return m;
 }
 
+function relu (x) {
+  if (Array.isArray(x)) {
+    for (let j = 0; j < x.length; j++) {
+      x[j].map(e => Math.max(0, e))
+    }
+    return x;
+  }
+  return Math.max(0, x);
+};
+
 // ################################################################################ 
 // norch forward function
 // ################################################################################ 
@@ -43,13 +53,12 @@ function forward(x, model_params) {
     x = matmul(x, transpose(weights[i]));
     x = add(x, biases[i])
     if (i != weights.length - 1) {
-      for (let j = 0; j < x.length; j++) {
-        x[j]= x[j].map(e => Math.max(0, e))
-      }
+			x = relu(x)
     }
   }
   return x;
 }
+
 
 // ################################################################################ 
 // utils
